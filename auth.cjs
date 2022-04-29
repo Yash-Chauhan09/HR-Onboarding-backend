@@ -37,9 +37,9 @@ router.post("/signin", (req, res) => {
                             email: sqlRes[0][0].email,
                             fullName: sqlRes[0][0].name,
                             token: newToken,
-                            department:sqlRes[0][0].department,
-                            resettoken:sqlRes[0][0].resettoken,
-                            manager:sqlRes[0][0].managername
+                            department: sqlRes[0][0].department,
+                            resettoken: sqlRes[0][0].resettoken,
+                            manager: sqlRes[0][0].managername
                         }
                     }
                 });
@@ -69,8 +69,8 @@ router.post("/signup", (req, res) => {
     if (body.email && body.fullName && body.password) {
         const id = uuid();
         db.execute(
-                `INSERT INTO users(id,name,email,pass) VALUES ("${id}","${body.email}","${body.password}")`
-            )
+            `INSERT INTO users(id,name,email,pass) VALUES ("${id}","${body.email}","${body.password}")`
+        )
             .then((data) => {
                 res.send({
                     "status": "OKAY",
@@ -108,27 +108,27 @@ router.post("/reset", (req, res) => {
         `SELECT * FROM users WHERE email="${body.email}" `
     ).then((results) => {
         // console.log(results);
-        if(results[0].length>0){
-            var newToken=makeToken(255)
-            var newpass=makeToken(10)
+        if (results[0].length > 0) {
+            var newToken = makeToken(255)
+            var newpass = makeToken(10)
             db.execute(
                 `UPDATE users SET resettoken="${newToken}",password="${newpass}" WHERE email="${body.email}" `
             )
             let user = {
                 email: body.email,
-                password: req.body.password,
+                password: newpass,
                 // resetLink: passwordResetLink,
-              };
-              sendMail(user);
+            };
+            sendMail(user);
             res.send({
                 "status": "OKAY",
                 "message": "Mail_SENT",
                 "data": {
-                    
+
                 }
             });
 
-        }else{
+        } else {
             res.send({
                 "status": "ERROR",
                 "message": "USER_NOT_EXIST",
@@ -139,6 +139,25 @@ router.post("/reset", (req, res) => {
 
         }
     });
+});
+
+
+router.post("/reset-password", (req, res) => {
+    var body = req.body
+    let resetToken = req.headers.resettoken;
+    let userPassword = body.password;
+    let sql = `UPDATE users SET password = '${userPassword}', resettoken = 'null' WHERE resettoken = '${resetToken}';`;
+    db.execute(sql).then((results) => {
+        console.log(results);
+        res.json({
+            "status": "OKAY",
+            "message": "User Verified And Password updated",
+            "data": {
+    
+            }
+        });
+      });
+
 });
 
 module.exports = router;
