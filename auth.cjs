@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { v4: uuid } = require("uuid");
 const db = require("./db.cjs").pool;
+const sendMail = require("./nodemailer.cjs")
 
+console.log("in auth")
 function makeToken(length) {
     var result = "";
     var characters =
@@ -22,7 +24,7 @@ router.post("/signin", (req, res) => {
         ).then((sqlRes) => {
             console.log(sqlRes[0])
             if (sqlRes[0].length > 0) {
-                const newToken = makeToken(255);
+                const newToken = makeToken(225);
                 db.execute(
                     `UPDATE users SET accesstoken="${newToken}" WHERE email="${body.email}" AND password="${body.password}"`
                 );
@@ -99,15 +101,44 @@ router.post("/signup", (req, res) => {
             });
     }
 });
-// router.get("/signout", (req, res) => {
-//     db.execute(
-//         `UPDATE users SET token = 'null' WHERE token = '${req.headers.token}'`
-//     ).then((results) => {
-//         console.log(results);
-//         res.json({
-//             success: "SIGNED_OUT",
-//         });
-//     });
-// });
+router.post("/reset", (req, res) => {
+    console.log("in reset")
+    const body = req.body;
+    db.execute(
+        `SELECT * FROM users WHERE email="${body.email}" `
+    ).then((results) => {
+        // console.log(results);
+        if(results[0].length>0){
+            var newToken=makeToken(255)
+            var newpass=makeToken(10)
+            db.execute(
+                `UPDATE users SET resettoken="${newToken}",password="${newpass}" WHERE email="${body.email}" `
+            )
+            let user = {
+                email: body.email,
+                password: req.body.password,
+                // resetLink: passwordResetLink,
+              };
+              sendMail(user);
+            res.send({
+                "status": "OKAY",
+                "message": "Mail_SENT",
+                "data": {
+                    
+                }
+            });
+
+        }else{
+            res.send({
+                "status": "ERROR",
+                "message": "USER_NOT_EXIST",
+                "data": {
+
+                }
+            });
+
+        }
+    });
+});
 
 module.exports = router;
