@@ -83,7 +83,7 @@ router.post("/invite", (req, res) => {
             ).then((result) => {
                 // console.log(results, results[0], results[0][0].userid);
                 let adminId = result[0][0].id;
-                let sql = `INSERT INTO users VALUES ('${userid}','${req.body.name}','${req.body.email}','${userPassword}','${req.body.department}','${req.body.managername}','null','${resetToken}')`;
+                let sql = `INSERT INTO users VALUES ('${userid}','${req.body.name}','${req.body.email}','${userPassword}','${req.body.department}','${req.body.managername}',null,'${resetToken}')`;
 
                 db.execute(sql).then((results) => {
                     // console.log(results);
