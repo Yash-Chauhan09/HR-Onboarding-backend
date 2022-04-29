@@ -65,7 +65,7 @@ router.post("/signin", (req, res) => {
 });
 
 router.post("/invite", (req, res) => {
-    let userid = uuid();
+    let userid = makeToken(10);
     let userPassword = makeToken(10)
     let resetToken = makeToken(255);
 
