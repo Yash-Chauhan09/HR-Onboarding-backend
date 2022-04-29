@@ -89,7 +89,7 @@ router.post("/invite", (req, res) => {
                     // console.log(results);
                     let user = {
                         email: req.body.email,
-                        password: req.body.password,
+                        password: userPassword,
                     };
                     sendMail(user);
                     res.send({
