@@ -79,7 +79,7 @@ router.post("/invite", (req, res) => {
                 });
             }
             db.execute(
-                `SELECT userid FROM users WHERE accessToken='${req.headers.accesstoken}'`
+                `SELECT id FROM users WHERE accessToken='${req.headers.accesstoken}'`
             ).then((result) => {
                 // console.log(results, results[0], results[0][0].userid);
                 let adminId = result[0][0].id;
@@ -187,6 +187,7 @@ router.post("/logout", (req, res) => {
         })
     }
       
+    
     })
 })
 
