@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const app = express();
 
 const authRoute = require("./auth.cjs");
+const reqRoute =require("./requirement.cjs")
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "50mb" }));
 
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoute);
+app.use("/requirement",reqRoute)
 app.use("/", (req, res) => {
   console.log(req.baseUrl);
   res.send({
