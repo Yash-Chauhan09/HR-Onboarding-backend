@@ -4,6 +4,7 @@ const uuid = require("uuid").v4;
 const db = require("./db.cjs").pool;
 const sendMail = require("./nodemailer.cjs")
 
+
 function makeToken(length) {
     var result = "";
     var characters =
@@ -16,14 +17,14 @@ function makeToken(length) {
 }
 console.log("in req")
 requireRouter.post("/read", (req, res) => {
-    var token=req.headers.accesstoken
+    var token = req.headers.accesstoken
     if (token) {
         db.execute(
             `SELECT * FROM requirements `
         ).then((sqlRes) => {
             console.log(sqlRes[0])
             if (sqlRes[0].length > 0) {
-               
+
                 res.send({
                     "status": "OKAY",
                     "message": "JOBS_FOUND",
@@ -55,8 +56,8 @@ requireRouter.post("/read", (req, res) => {
 requireRouter.post("/write", (req, res) => {
     console.log(req)
     let jobid = makeToken(10);
-    let body=req.body
-    var todayDate="1970-01-01 00:00:01"
+    let body = req.body
+    var todayDate = new Date().toISOString().replace("T", " ").replace("Z", "")//"1970-01-01 00:00:01"
     let sql = `INSERT INTO requirements VALUES ('${jobid}','${todayDate}','${body.userId}','${body.positionTitle}','${body.jobType}','${body.workLocation}',${body.openingCount},'${body.skills}',${body.roundCount},'${body.roundInArray}',"")`;
 
     db.execute(sql).then((results) => {
@@ -67,18 +68,59 @@ requireRouter.post("/write", (req, res) => {
 
             }
         });
-        
+
     });
 
 
-    
+
 })
+
+requireRouter.post("/live", (req, res) => {
+    var body = req.body
+    let jobid = body.jobId;
+    let origin=req.headers.host
+    console.log(origin)
+    let sql1 = `select * from requirements where jobID="${jobid}"`
+    db.execute(sql1).then((sqlres) => {
+        if (sqlres[0].length > 0) {
+                var sql2=`CREATE TABLE pooran (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255))`;
+
+            let sql = `CREATE TABLE sme_${jobid} (gigid  VARCHAR(45)  PRIMARY KEY, name VARCHAR(45), email VARCHAR(45),mobileNum INT,laptop VARCHAR(5),wifi_connection VARCHAR(5),experience FLOAT,pan_tap VARCHAR(5),subject VARCHAR(45),video_links VARCHAR(400),status VARCHAR(45)) `;
+
+            db.execute(sql).then((results) => {
+                res.send({
+                    "status": "OKAY",
+                    "message": "TABLE CREATED",
+                    "data": {
+                        formLink:`${origin}/form.html?sme_${jobid}`
+                    }
+                });
+
+            });
+        }else{
+            res.send({
+                "status": "ERROR",
+                "message": "Job not found",
+                "data": {
+
+                }
+            });
+        }
+    })
+
+
+
+
+})
+
+
+
 requireRouter.post("/", (req, res) => {
     res.send({
-      status: "ERROR",
-      message: "PAGE_NOT_FOUND",
-      data: {},
+        status: "ERROR",
+        message: "PAGE_NOT_FOUND",
+        data: {},
     });
-  });
+});
 
 module.exports = requireRouter;
