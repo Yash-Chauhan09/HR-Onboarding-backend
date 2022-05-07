@@ -78,26 +78,33 @@ requireRouter.post("/write", (req, res) => {
 requireRouter.post("/live", (req, res) => {
     var body = req.body
     let jobid = body.jobId;
-    let origin=req.headers.origin
-    console.log(origin)
+    let origin = req.headers.origin
     let sql1 = `select * from requirements where jobID="${jobid}"`
     db.execute(sql1).then((sqlres) => {
         if (sqlres[0].length > 0) {
-                var sql2=`CREATE TABLE pooran (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255))`;
 
             let sql = `CREATE TABLE sme_${jobid} (gigid  VARCHAR(45)  PRIMARY KEY, name VARCHAR(45), email VARCHAR(45),mobileNum INT,laptop VARCHAR(5),wifi_connection VARCHAR(5),experience FLOAT,pan_tap VARCHAR(5),subject VARCHAR(45),video_links VARCHAR(400),status VARCHAR(45)) `;
 
-            db.execute(sql).then((results) => {
-                res.send({
-                    "status": "OKAY",
-                    "message": "TABLE CREATED",
-                    "data": {
-                        formLink:`${origin}/form.html?sme_${jobid}`
-                    }
-                });
+         
+                db.execute(sql).then((results)=>{
+                    console.log("error")
+                    console.log(results)
+                    var sql2=`UPDATE requirements SET status="Live" WHERE jobId="${jobid}"`
+                    db.execute(sql2).then((sqlRes2)=>{
+                        console.log(sqlRes2)
+                    })
+                    res.send({
+                        "status": "OKAY",
+                        "message": "TABLE CREATED",
+                        "data": {
+                            formLink: `${origin}/form.html?sme_${jobid}`
+                        }
+                    });
 
-            });
-        }else{
+                });
+            
+
+        } else {
             res.send({
                 "status": "ERROR",
                 "message": "Job not found",
