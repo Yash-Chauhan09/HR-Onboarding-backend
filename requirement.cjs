@@ -78,7 +78,7 @@ requireRouter.post("/write", (req, res) => {
 requireRouter.post("/live", (req, res) => {
     var body = req.body
     let jobid = body.jobId;
-    let origin=req.headers.host
+    let origin=req.headers.origin
     console.log(origin)
     let sql1 = `select * from requirements where jobID="${jobid}"`
     db.execute(sql1).then((sqlres) => {
